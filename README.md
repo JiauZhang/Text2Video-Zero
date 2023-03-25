@@ -2,7 +2,8 @@
 
 # Text2Video-Zero
 Implementation of [Text2Video-Zero: Text-to-Image Diffusion Models are Zero-Shot Video Generators](https://arxiv.org/pdf/2303.13439.pdf)  
-<img src="./panda.png" width="321" alt="Chinese Panda" title="Chinese Panda"/>
+<img src="./panda.png" height="321" alt="Chinese Panda" title="Chinese Panda"/>
+<img src="./pandas.png" height="321" alt="Chinese Panda" title="Chinese Panda"/>
 
 ```shell
 pip install diffusers transformers==4.26
