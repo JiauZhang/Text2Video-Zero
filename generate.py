@@ -15,10 +15,9 @@ model_id = args.model_id
 prompt = args.prompt
 steps = args.num_inference_steps
 
-DDIM_backward = DDIMBackward()
 ddim_scheduler = DDIMScheduler.from_pretrained(model_id, subfolder="scheduler")
 ddpm_scheduler = DDPMScheduler.from_pretrained(model_id, subfolder="scheduler")
-SD = StableDiffusionPipeline.from_pretrained(
+SD = DDIMBackward.from_pretrained(
     model_id, scheduler=ddim_scheduler, torch_dtype=torch.float32,
     cache_dir='.',
 ).to(device)
@@ -26,21 +25,21 @@ generator = torch.Generator(device).manual_seed(19491001)
 
 images = SD(
     prompt, generator=generator, num_inference_steps=steps,
-    callback=DDIM_backward,
+    callback=SD.record,
 ).images
 image = image_grid(images, rows=1, cols=1)
 image.save('panda.png')
 
 images = []
-for i in range(0, len(DDIM_backward.all_latents), 2):
-    images += latent_to_image(DDIM_backward.all_latents[i][1], SD)
+for i in range(0, len(SD.all_latents), 2):
+    images += latent_to_image(SD.all_latents[i][1], SD)
 
 image = image_grid(images, rows=5, cols=5)
 image.save('pandas.png')
 
 start = 3
-latent_start = DDIM_backward.all_latents[start][1]
-t_start = DDIM_backward.all_latents[start][0]
+latent_start = SD.all_latents[start][1]
+t_start = SD.all_latents[start][0]
 motion_dynamics = MotionDynamics(ddpm_scheduler, 1000, t_start, device)
 x_1_m = [latent_start] + motion_dynamics(latent_start, delta_t=20)
 

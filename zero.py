@@ -1,16 +1,26 @@
 import torch, cv2
 import numpy as np
 from diffusers.utils import torch_utils
+from diffusers import StableDiffusionPipeline
 
-class DDIMBackward():
-    def __init__(self, t_start=941, delta_t=60):
+class DDIMBackward(StableDiffusionPipeline):
+    def __init__(
+        self, vae, text_encoder, tokenizer, unet, scheduler,
+        safety_checker, feature_extractor,
+        requires_safety_checker: bool = True,
+        t_start=941, delta_t=60,
+    ):
+        super().__init__(
+            vae, text_encoder, tokenizer, unet, scheduler,
+            safety_checker, feature_extractor, requires_safety_checker,
+        )
         self.t_start = t_start
         self.delta_t = delta_t
         self.t_star_dot = t_start - delta_t
         self.latents = []
         self.all_latents = []
 
-    def __call__(self, t, timestep, latent):
+    def record(self, t, timestep, latent):
         if timestep == self.t_start:
             self.latents = [latent]
         elif timestep == self.t_star_dot:
