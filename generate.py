@@ -1,7 +1,7 @@
 import torch, diffusers, argparse
 from diffusers import StableDiffusionPipeline, DDIMScheduler, DDPMScheduler
 from utils import image_grid, latent_to_image
-from zero import DDIMBackward
+from zero import DDIMBackward, MotionDynamics
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--device', type=str, default='cuda')
@@ -37,3 +37,18 @@ for i in range(0, len(DDIM_backward.all_latents), 2):
 
 image = image_grid(images, rows=5, cols=5)
 image.save('pandas.png')
+
+start = 3
+latent_start = DDIM_backward.all_latents[start][1]
+t_start = DDIM_backward.all_latents[start][0]
+motion_dynamics = MotionDynamics(ddpm_scheduler, 1000, t_start, device)
+x_1_m = [latent_start] + motion_dynamics(latent_start, delta_t=20)
+
+images = []
+for x in x_1_m:
+    images += SD(
+        prompt, generator=generator, num_inference_steps=steps,
+        latents=x,
+    ).images
+image = image_grid(images, rows=1, cols=len(images))
+image.save('frames.png')
