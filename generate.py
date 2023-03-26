@@ -9,7 +9,7 @@ parser.add_argument('--model_id', type=str, default='runwayml/stable-diffusion-v
 parser.add_argument('--prompt', type=str, default='Chinese Panda')
 parser.add_argument('--num_inference_steps', type=int, default=50)
 parser.add_argument('--t_start', type=int, default=941)
-parser.add_argument('--delta_t', type=int, default=50)
+parser.add_argument('--delta_t', type=int, default=60)
 
 args = parser.parse_args()
 device = args.device
