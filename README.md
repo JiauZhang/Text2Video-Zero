@@ -5,10 +5,14 @@ Implementation of [Text2Video-Zero: Text-to-Image Diffusion Models are Zero-Shot
 <img src="./images/panda.png" height="321" alt="Chinese Panda" title="Chinese Panda"/>
 <img src="./images/pandas.png" height="321" alt="Chinese Panda" title="Chinese Panda"/>  
 **Version 1**  
-<img src="./images/frames.png" width="1200" alt="Chinese Panda" title="Chinese Panda"/>  
+<img src="./images/frames.png" width="1000" alt="Chinese Panda" title="Chinese Panda"/>  
 **Version 2** - Motion in Latents, No Cross-Frame Attention  
-<img src="./images/frames-v2-1.png" width="1200" alt="Chinese Panda"/>  
-<img src="./images/frames-v2-2.png" width="1200" alt="a high quality realistic photo of a panda playing guitar on times square"/>  
+<img src="./images/frames-v2-1.png" width="1000" alt="Chinese Panda"/>  
+<img src="./images/frames-v2-2.png" width="1000" alt="a high quality realistic photo of a panda playing guitar on times square"/>  
+**Version 3** - Motion in Latents, Cross-Frame Attention  
+<img src="./images/frames-v3-1.png" width="1000" alt="Chinese Panda"/>  
+<img src="./images/frames-v3-2.png" width="1000" alt="a high quality realistic photo of a panda playing guitar on times square"/>  
+<img src="./images/frames-v3-3.png" width="1000" alt="an astronaut is skiing down a hill"/>  
 
 ```shell
 pip install diffusers transformers==4.26

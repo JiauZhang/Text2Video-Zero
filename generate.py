@@ -23,7 +23,7 @@ ddpm_scheduler = DDPMScheduler.from_pretrained(model_id, subfolder="scheduler")
 SD = DDIMBackward.from_pretrained(
     model_id, scheduler=ddim_scheduler, torch_dtype=torch.float32,
     cache_dir='.', t_start=t_start, delta_t=delta_t,
-    processor=CrossFrameAttnProcessor(),
+    processor=CrossFrameAttnProcessor('cpu'),
 ).to(device)
 generator = torch.Generator(device).manual_seed(19491001)
 

@@ -20,9 +20,7 @@ class DDIMBackward(StableDiffusionPipeline):
         self.t_star_dot = t_start - delta_t
         self.latents = []
         self.all_latents = []
-
-        if processor:
-            self.unet.set_attn_processor(processor)
+        self.processor = processor
 
     def record(self, t, timestep, latent):
         if timestep == self.t_start:
@@ -91,6 +89,12 @@ class DDIMBackward(StableDiffusionPipeline):
             latents,
         )
 
+        if callback and self.processor:
+            self.unet.set_attn_processor(self.processor)
+            self.processor.record = True
+        elif self.processor:
+            self.processor.record = False
+
         extra_step_kwargs = self.prepare_extra_step_kwargs(generator, eta)
         num_warmup_steps = len(timesteps) - num_inference_steps * self.scheduler.order
         with self.progress_bar(total=num_inference_steps) as progress_bar:
@@ -102,6 +106,9 @@ class DDIMBackward(StableDiffusionPipeline):
                 # expand the latents if we are doing classifier free guidance
                 latent_model_input = torch.cat([latents] * 2) if do_classifier_free_guidance else latents
                 latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
+
+                if self.processor:
+                    self.processor.timestep = t.item()
 
                 # predict the noise residual
                 noise_pred = self.unet(
@@ -182,6 +189,13 @@ class MotionDynamics():
         return x_2_m
 
 class CrossFrameAttnProcessor:
+    def __init__(self, device):
+        # id --> key, value, device: self.__kv will be saved on cpu or gpu
+        self.__kv = {}
+        self.device = device
+        self.record = False
+        self.timestep = None
+
     def __call__(
         self, attn, hidden_states, encoder_hidden_states=None, attention_mask=None,
     ):
@@ -189,13 +203,27 @@ class CrossFrameAttnProcessor:
         attention_mask = attn.prepare_attention_mask(attention_mask, sequence_length, batch_size)
         query = attn.to_q(hidden_states)
 
-        if encoder_hidden_states is None:
+        self_attn = encoder_hidden_states is None
+        if self_attn:
             encoder_hidden_states = hidden_states
         elif attn.cross_attention_norm:
             encoder_hidden_states = attn.norm_cross(encoder_hidden_states)
 
-        key = attn.to_k(encoder_hidden_states)
-        value = attn.to_v(encoder_hidden_states)
+        if not self_attn or self.record:
+            key = attn.to_k(encoder_hidden_states)
+            value = attn.to_v(encoder_hidden_states)
+
+        if self_attn:
+            attn_id = id(attn)
+            if self.record:
+                kv = [key.to(self.device), value.to(self.device)]
+                if attn_id in self.__kv:
+                    self.__kv[attn_id][self.timestep] = kv
+                else:
+                    self.__kv[attn_id] = {self.timestep: kv}
+            else:
+                key, value = self.__kv[attn_id][self.timestep]
+                key, value = key.to(query.device), value.to(query.device)
 
         query = attn.head_to_batch_dim(query)
         key = attn.head_to_batch_dim(key)
