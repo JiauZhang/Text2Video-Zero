@@ -1,7 +1,7 @@
 import torch, diffusers, argparse
 from diffusers import StableDiffusionPipeline, DDIMScheduler, DDPMScheduler
 from utils import image_grid, latent_to_image
-from zero import DDIMBackward, MotionDynamics
+from zero import DDIMBackward, MotionDynamics, CrossFrameAttnProcessor
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--device', type=str, default='cuda')
@@ -23,6 +23,7 @@ ddpm_scheduler = DDPMScheduler.from_pretrained(model_id, subfolder="scheduler")
 SD = DDIMBackward.from_pretrained(
     model_id, scheduler=ddim_scheduler, torch_dtype=torch.float32,
     cache_dir='.', t_start=t_start, delta_t=delta_t,
+    processor=CrossFrameAttnProcessor(),
 ).to(device)
 generator = torch.Generator(device).manual_seed(19491001)
 

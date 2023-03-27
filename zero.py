@@ -9,7 +9,7 @@ class DDIMBackward(StableDiffusionPipeline):
         self, vae, text_encoder, tokenizer, unet, scheduler,
         safety_checker, feature_extractor,
         requires_safety_checker: bool = True,
-        t_start=941, delta_t=60,
+        t_start=941, delta_t=60, processor=None,
     ):
         super().__init__(
             vae, text_encoder, tokenizer, unet, scheduler,
@@ -20,6 +20,9 @@ class DDIMBackward(StableDiffusionPipeline):
         self.t_star_dot = t_start - delta_t
         self.latents = []
         self.all_latents = []
+
+        if processor:
+            self.unet.set_attn_processor(processor)
 
     def record(self, t, timestep, latent):
         if timestep == self.t_start:
@@ -177,3 +180,31 @@ class MotionDynamics():
             x_2_m.append(x_t_k)
 
         return x_2_m
+
+class CrossFrameAttnProcessor:
+    def __call__(
+        self, attn, hidden_states, encoder_hidden_states=None, attention_mask=None,
+    ):
+        batch_size, sequence_length, _ = hidden_states.shape
+        attention_mask = attn.prepare_attention_mask(attention_mask, sequence_length, batch_size)
+        query = attn.to_q(hidden_states)
+
+        if encoder_hidden_states is None:
+            encoder_hidden_states = hidden_states
+        elif attn.cross_attention_norm:
+            encoder_hidden_states = attn.norm_cross(encoder_hidden_states)
+
+        key = attn.to_k(encoder_hidden_states)
+        value = attn.to_v(encoder_hidden_states)
+
+        query = attn.head_to_batch_dim(query)
+        key = attn.head_to_batch_dim(key)
+        value = attn.head_to_batch_dim(value)
+
+        attention_probs = attn.get_attention_scores(query, key, attention_mask)
+        hidden_states = torch.bmm(attention_probs, value)
+        hidden_states = attn.batch_to_head_dim(hidden_states)
+        hidden_states = attn.to_out[0](hidden_states)
+        hidden_states = attn.to_out[1](hidden_states)
+
+        return hidden_states
