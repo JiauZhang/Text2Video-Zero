@@ -8,8 +8,7 @@ pip install diffusers transformers==4.26
 python generate.py
 ```
 
-<img src="./images/panda.png" height="321" alt="Chinese Panda" title="Chinese Panda"/>
-<img src="./images/pandas.png" height="321" alt="Chinese Panda" title="Chinese Panda"/>
+<img src="./images/panda.png" height="321" alt="Chinese Panda" title="Chinese Panda"/><img src="./images/pandas.png" height="321" alt="Chinese Panda" title="Chinese Panda"/>
 
 **Version 1**  
 <img src="./images/frames.png" width="1000" alt="Chinese Panda" title="Chinese Panda"/>
