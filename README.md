@@ -4,7 +4,7 @@
 Implementation of [Text2Video-Zero: Text-to-Image Diffusion Models are Zero-Shot Video Generators](https://arxiv.org/pdf/2303.13439.pdf)
 
 ```shell
-pip install diffusers transformers==4.26
+pip install diffusers==0.14.0 transformers==4.26.0
 python generate.py
 ```
 

@@ -23,10 +23,6 @@ class DDIMBackward(StableDiffusionPipeline):
         self.processor = processor
 
     def record(self, t, timestep, latent):
-        if timestep == self.t_start:
-            self.latents = [latent]
-        elif timestep == self.t_star_dot:
-            self.latents.append(latent)
         self.all_latents.append([timestep, latent])
 
     @torch.no_grad()
