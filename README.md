@@ -5,6 +5,8 @@ Implementation of [Text2Video-Zero: Text-to-Image Diffusion Models are Zero-Shot
 
 ```shell
 pip install diffusers==0.14.0 transformers==4.26.0
+# ControlNet
+pip install git+https://github.com/patrickvonplaten/controlnet_aux.git
 python generate.py
 ```
 

@@ -3,6 +3,11 @@ from diffusers import (
     ControlNetModel, StableDiffusionControlNetPipeline,
     DDIMScheduler, DDPMScheduler,
 )
+from controlnet_aux import (
+    OpenposeDetector, MLSDdetector, HEDdetector, CannyDetector,
+    MidasDetector,
+)
+from utils import load_gif
 
 CONTROLNET_MODEL_IDS = {
     'canny': 'lllyasviel/sd-controlnet-canny',
@@ -15,11 +20,18 @@ CONTROLNET_MODEL_IDS = {
     'normal': 'lllyasviel/sd-controlnet-normal',
 }
 
+gif = 'images/Michael_Jackson.gif'
+frames = load_gif(gif)
+model_id = 'runwayml/stable-diffusion-v1-5'
+open_pose = OpenposeDetector.from_pretrained(
+    'lllyasviel/ControlNet', cache_dir='.',
+)
 controlnet = ControlNetModel.from_pretrained(
-    CONTROLNET_MODEL_IDS['pose'], torch_dtype=torch.float16,
+    CONTROLNET_MODEL_IDS['pose'], torch_dtype=torch.float32,
     cache_dir='.',
 )
+ddim_scheduler = DDIMScheduler.from_pretrained(model_id, subfolder="scheduler")
 pipe = StableDiffusionControlNetPipeline.from_pretrained(
-    'runwayml/stable-diffusion-v1-5', controlnet=controlnet,
-    torch_dtype=torch.float16, cache_dir='.',
+    model_id, controlnet=controlnet, scheduler=ddim_scheduler,
+    torch_dtype=torch.float32, cache_dir='.',
 )
