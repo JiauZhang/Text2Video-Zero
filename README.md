@@ -10,6 +10,7 @@ pip install git+https://github.com/patrickvonplaten/controlnet_aux.git
 python generate.py
 ```
 
+## Stable Diffusion
 <img src="./images/panda.png" height="321" alt="Chinese Panda" title="Chinese Panda"/><img src="./images/pandas.png" height="321" alt="Chinese Panda" title="Chinese Panda"/>
 
 **Version 1**  
@@ -23,3 +24,6 @@ python generate.py
 <img src="./images/frames-v3-1.png" width="1000" alt="Chinese Panda"/>
 <img src="./images/frames-v3-2.png" width="1000" alt="a high quality realistic photo of a panda playing guitar on times square"/>
 <img src="./images/frames-v3-3.png" width="1000" alt="an astronaut is skiing down a hill"/>
+
+## ControlNet
+<img src="./images/pose.png" width="1000" alt="pose visualization"/>

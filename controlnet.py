@@ -7,7 +7,7 @@ from controlnet_aux import (
     OpenposeDetector, MLSDdetector, HEDdetector, CannyDetector,
     MidasDetector,
 )
-from utils import load_gif
+from utils import load_gif, image_grid
 
 CONTROLNET_MODEL_IDS = {
     'canny': 'lllyasviel/sd-controlnet-canny',
@@ -20,12 +20,20 @@ CONTROLNET_MODEL_IDS = {
     'normal': 'lllyasviel/sd-controlnet-normal',
 }
 
-gif = 'images/Michael_Jackson.gif'
-frames = load_gif(gif)
 model_id = 'runwayml/stable-diffusion-v1-5'
 open_pose = OpenposeDetector.from_pretrained(
     'lllyasviel/ControlNet', cache_dir='.',
 )
+
+gif = 'images/Michael_Jackson.gif'
+frames = load_gif(gif)
+images = []
+for frame in frames:
+    pose = open_pose(frame.permute(1, 2, 0))
+    images.append(pose)
+image = image_grid(images, rows=2, cols=len(images)//2)
+image.save('pose.png')
+
 controlnet = ControlNetModel.from_pretrained(
     CONTROLNET_MODEL_IDS['pose'], torch_dtype=torch.float32,
     cache_dir='.',
